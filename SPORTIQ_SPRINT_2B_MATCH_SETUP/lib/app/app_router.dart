@@ -102,10 +102,12 @@ abstract class AppRoutes {
 
   static const String footballMatch = '/football/match';
   static const String footballLineup = '/football/match/lineup';
+  static const String footballSettings = '/football/match/settings';
   static const String footballLive = '/football/match/live';
   static const String footballSummary = '/football/match/summary';
   static const String padelMatch = '/padel/match';
   static const String padelReady = '/padel/match/ready';
+  static const String padelSettings = '/padel/match/settings';
   static const String padelLive = '/padel/match/live';
   static const String padelSummary = '/padel/match/summary';
 }
@@ -560,12 +562,25 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.footballLineup,
       builder: (BuildContext context, GoRouterState state) =>
-          const FootballLineupScreen(),
+          FootballLineupScreen(
+        match: state.extra is FootballMatchState
+            ? state.extra! as FootballMatchState
+            : _emptyFootballMatch(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.footballSettings,
+      builder: (BuildContext context, GoRouterState state) =>
+          const FootballSettingsScreen(),
     ),
     GoRoute(
       path: AppRoutes.footballLive,
       builder: (BuildContext context, GoRouterState state) =>
-          const FootballLiveScreen(),
+          FootballLiveScreen(
+        initialMatch: state.extra is FootballMatchState
+            ? state.extra! as FootballMatchState
+            : _emptyFootballMatch(),
+      ),
     ),
     GoRoute(
       path: AppRoutes.footballSummary,
@@ -573,10 +588,7 @@ final GoRouter appRouter = GoRouter(
           FootballSummaryScreen(
         match: state.extra is FootballMatchState
             ? state.extra! as FootballMatchState
-            : const FootballMatchState(
-                homeTeam: 'Falcons FC',
-                awayTeam: 'City United',
-              ),
+            : _emptyFootballMatch(),
       ),
     ),
     GoRoute(
@@ -586,13 +598,24 @@ final GoRouter appRouter = GoRouter(
     ),
     GoRoute(
       path: AppRoutes.padelReady,
+      builder: (BuildContext context, GoRouterState state) => PadelReadyScreen(
+        match: state.extra is PadelMatchState
+            ? state.extra! as PadelMatchState
+            : _emptyPadelMatch(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.padelSettings,
       builder: (BuildContext context, GoRouterState state) =>
-          const PadelReadyScreen(),
+          const PadelSettingsScreen(),
     ),
     GoRoute(
       path: AppRoutes.padelLive,
-      builder: (BuildContext context, GoRouterState state) =>
-          const PadelLiveScreen(),
+      builder: (BuildContext context, GoRouterState state) => PadelLiveScreen(
+        initialMatch: state.extra is PadelMatchState
+            ? state.extra! as PadelMatchState
+            : _emptyPadelMatch(),
+      ),
     ),
     GoRoute(
       path: AppRoutes.padelSummary,
@@ -600,11 +623,21 @@ final GoRouter appRouter = GoRouter(
           PadelSummaryScreen(
         match: state.extra is PadelMatchState
             ? state.extra! as PadelMatchState
-            : const PadelMatchState(teamA: 'Pair A', teamB: 'Pair B'),
+            : _emptyPadelMatch(),
       ),
     ),
   ],
 );
+
+FootballMatchState _emptyFootballMatch() => const FootballMatchState(
+      homeTeam: FootballTeam(id: 'home', name: 'Home team'),
+      awayTeam: FootballTeam(id: 'away', name: 'Away team'),
+    );
+
+PadelMatchState _emptyPadelMatch() => const PadelMatchState(
+      teamA: PadelPair(id: 'a', name: 'Pair A', players: <PadelPlayer>[]),
+      teamB: PadelPair(id: 'b', name: 'Pair B', players: <PadelPlayer>[]),
+    );
 
 MatchSetupData _readMatchSetupData(Object? extra) {
   if (extra is MatchSetupData) {
